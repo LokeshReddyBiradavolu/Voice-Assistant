@@ -18,7 +18,7 @@ def speak(text):
 def take_command():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        recognizer.pause_threshold = 1
+        recognizer.pause_threshold = 0.5  # Set a shorter pause threshold
         audio = recognizer.listen(source)
 
     try:
@@ -27,11 +27,12 @@ def take_command():
     except Exception as e:
         return ""  # Return empty string if audio could not be recognized
 
+
 def main():
-    print("Listening")
     listening = True  # Initially start in listening mode
     while True:
         if listening:
+            print("Listening...")  # Print listening mode
             query = take_command()
             if "open " in query:
                 app_name = query.replace("open ", "").strip()
@@ -40,10 +41,10 @@ def main():
                 print("Say 'hey amigo' to resume listening.")
                 open_app(app_name, match_closest=True) # Open the app
                 listening = False  # Pause listening after performing action
-                print("Say 'hey amigo' to resume.")
+                print("Say 'hey amigo' to resume listening.")
             elif "who is" in query:
                 search_terms = query.split("who is", 1)[-1].strip()
-                search_terms = " ".join(search_terms.split())
+                search_terms = " ".join(search_terms.split(" "))
                 print(f"Searching Wikipedia for {search_terms}...")
                 speak(f"Searching Wikipedia for {search_terms}")  # Speak out the action
                 try:
@@ -65,14 +66,13 @@ def main():
                     speak("Connection to Wikipedia timed out. Please try again later.")  # Speak out the action
                     print("Say 'hey amigo' to resume listening.")
             elif "what is" in query:
-                search_term = query.split("what is")[-1]
+                search_term = query.split("what is")[-1].strip()
                 print(f"The query is: {search_term}")
                 print(f"Searching Chrome for {search_term}...")
                 speak(f"Searching Chrome for {search_term}")  # Speak out the action
                 search_url = f"https://www.google.com/search?q={search_term.replace(' ', '+')}"
                 webbrowser.open(search_url)
                 print("Say 'hey amigo' to resume.")
-                
             elif "exit" in query:
                 print("Quitting...")
                 speak("Quitting...")  # Speak out the action
@@ -80,13 +80,13 @@ def main():
             else:
                 listening = False  # Pause listening after unrecognized command
         else:
+           # Print recognizing mode
             query = take_command()
             if "hey amigo" in query:
-                print("Recognizing...")
-                speak("Recognizing...")  # Speak out the action
-                print("Listening")
                 speak("Listening")  # Speak out the action
                 listening = True
 
+
 if __name__ == '__main__':
     main()
+
